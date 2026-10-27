@@ -76,6 +76,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          blocked_topics: string
+          language: string
+          privacy_rules: string
+          response_length: string
+          save_history: boolean
+          topics: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          blocked_topics?: string
+          language?: string
+          privacy_rules?: string
+          response_length?: string
+          save_history?: boolean
+          topics?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          blocked_topics?: string
+          language?: string
+          privacy_rules?: string
+          response_length?: string
+          save_history?: boolean
+          topics?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

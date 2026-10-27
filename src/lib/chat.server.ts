@@ -2,14 +2,10 @@ import { convertToModelMessages, type UIMessage } from "ai";
 import { createClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { createResponsesCall } from "./ai/responses";
+import { buildInstructions } from "./coruja-prompt";
 
 const MODEL = "openai/gpt-6-astra";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1";
-
-const INSTRUCTIONS = `Você é o Coruja, um assistente simpático e direto que fala português do Brasil.
-Sua especialidade é programação (explicar conceitos, revisar e escrever código, depurar erros),
-mas você também conversa sobre qualquer outro assunto com prazer.
-Use markdown, e sempre coloque código em blocos com a linguagem indicada.`;
 
 function json(status: number, error: string) {
   return Response.json({ error }, { status });
@@ -58,9 +54,12 @@ export async function handleChat(request: Request) {
     .maybeSingle();
   if (!thread) return json(404, "Conversa não encontrada.");
 
+  const { data: settings } = await supabase.from("user_settings").select("*").maybeSingle();
+  const saveHistory = settings?.save_history ?? true;
+
   const last = messages[messages.length - 1];
   if (last && last.role === "user") {
-    const { error } = await supabase.from("messages").upsert(
+    const { error } = !saveHistory ? { error: null } : await supabase.from("messages").upsert(
       {
         thread_id: threadId,
         ui_id: last.id,
@@ -85,7 +84,7 @@ export async function handleChat(request: Request) {
     request,
     { baseURL: GATEWAY, apiKey, model: MODEL },
     await convertToModelMessages(messages),
-    INSTRUCTIONS,
+    buildInstructions(settings),
   );
 
   return call.response({
@@ -99,7 +98,7 @@ export async function handleChat(request: Request) {
       return "Algo deu errado ao gerar a resposta.";
     },
     onFinish: async ({ responseMessage, isAborted }) => {
-      if (!responseMessage || responseMessage.parts.length === 0) return;
+      if (!saveHistory || !responseMessage || responseMessage.parts.length === 0) return;
       const { error } = await supabase.from("messages").upsert(
         {
           thread_id: threadId,
