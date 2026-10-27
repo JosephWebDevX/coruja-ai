@@ -58,7 +58,10 @@ function SettingsPage() {
       updated_at: new Date().toISOString(),
     });
     setSaving(false);
-    if (error) return toast.error("Não foi possível salvar.");
+    if (error) {
+      toast.error("Não foi possível salvar.");
+      return;
+    }
     qc.invalidateQueries({ queryKey: ["settings"] });
     toast.success("Ajustes salvos. Valem a partir da próxima mensagem.");
   }
