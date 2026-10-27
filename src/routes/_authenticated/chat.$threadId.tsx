@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { LogOut, Menu, Plus, Trash2, X } from "lucide-react";
+import { LogOut, Menu, Plus, SlidersHorizontal, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { createThread, deleteThread, getThreadMessages, listThreads } from "@/lib/threads";
@@ -109,7 +109,12 @@ function ThreadPage() {
             </div>
           ))}
         </nav>
-        <div className="border-t border-sidebar-border p-3">
+        <div className="space-y-1 border-t border-sidebar-border p-3">
+          <Button asChild variant="ghost" className="w-full justify-start gap-2">
+            <Link to="/settings">
+              <SlidersHorizontal className="size-4" /> Ajustes do Coruja
+            </Link>
+          </Button>
           <Button variant="ghost" className="w-full justify-start gap-2" onClick={() => supabase.auth.signOut()}>
             <LogOut className="size-4" /> Sair
           </Button>
